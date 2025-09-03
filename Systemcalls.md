@@ -1,81 +1,75 @@
-# POSIX System Calls Cheat Sheet
+# POSIX System Calls - Conditions and Real-World Usage
 
 ## 1. File Management System Calls
 
-| Return Code | System Call 
-|-------------|------------|
-| fd = open(filename, flags, mode) | Open a file and return a file descriptor |
-| fd = creat(filename, mode) | Create a new file with given permissions |
-| s = close(fd) | Close an open file descriptor |
-| n = read(fd, buffer, nbytes) | Read nbytes from file into buffer |
-| n = write(fd, buffer, nbytes) | Write nbytes from buffer to file |
-| position = lseek(fd, offset, whence) | Move file pointer (SEEK_SET, SEEK_CUR, SEEK_END) |
-| s = stat(filename, &buf) | Get file metadata |
-| s = fstat(fd, &buf) | Get metadata of open file descriptor |
-| s = chmod(filename, mode) | Change file permissions |
-| s = chown(filename, owner, group) | Change file owner/group |
-| s = unlink(filename) | Delete a file |
-| s = mkdir(dirname, mode) | Create a directory |
-| s = rmdir(dirname) | Remove a directory |
-| s = chdir(dirname) | Change current working directory |
-| cwd = getcwd(buffer, size) | Get current working directory |
-| s = link(oldname, newname) | Create a hard link |
-| s = symlink(target, linkname) | Create a symbolic link |
-| n = readlink(linkname, buffer, size) | Read symbolic link target |
-| s = truncate(filename, length) / ftruncate(fd, length) | Change file size |
+| System Call | Condition / When Used | Real-World Example |
+|-------------|----------------------|------------------|
+| open() | Access a file for reading/writing | Opening a configuration file to read settings |
+| creat() | Create a new file | Creating a new log file for application events |
+| close() | Finished with a file | Closing a file after reading data |
+| read() | Read data from a file | Reading user data from a CSV file |
+| write() | Write data to a file | Writing logs to a server log file |
+| lseek() | Move file pointer for random access | Jumping to the middle of a binary file to update a record |
+| stat() / fstat() | Check file info | Checking file size before reading into memory |
+| chmod() | Change file permissions | Making a script executable (`chmod +x script.sh`) |
+| chown() | Change file owner/group | Changing ownership of files on a shared server |
+| unlink() | Delete a file | Deleting temporary files |
+| mkdir() | Create a directory | Creating project folders in a build script |
+| rmdir() | Remove an empty directory | Removing old empty log directories |
+| chdir() | Change working directory | Switching to project folder before running scripts |
+| getcwd() | Get current working directory | Displaying current directory in a shell prompt |
+| link() | Create a hard link | Creating multiple references to the same file |
+| symlink() | Create a symbolic link | Linking `/usr/bin/python3` to `/usr/bin/python` |
+| readlink() | Read a symbolic link target | Resolving the real path behind a symlink |
+| truncate() / ftruncate() | Change file size | Shortening log files to save space |
 
 ## 2. Process Control System Calls
 
-| Return Code | System Call 
-|-------------|------------|
-| p = fork() | Create a new process (child) |
-| s = execv(program, argv) | Replace current process image with a new program |
-| s = wait(&status) | Wait for child process to terminate |
-| s = waitpid(pid, &status, options) | Wait for a specific child process |
-| s = exit(status) | Terminate current process |
-| pid = getpid() | Get current process ID |
-| ppid = getppid() | Get parent process ID |
-| uid = getuid() / euid = geteuid() | Get user ID / effective user ID |
-| s = setuid(uid) / s = seteuid(uid) | Set user ID / effective user ID |
-| s = kill(pid, signal) | Send signal to a process |
-| s = sleep(seconds) | Suspend process for a time |
-| s = alarm(seconds) | Set a timer to send SIGALRM |
+| System Call | Condition / When Used | Real-World Example |
+|-------------|----------------------|------------------|
+| fork() | Create a new process | Web server creating child process to handle a request |
+| execv() | Replace current process image | Running a script from a C program |
+| wait() / waitpid() | Wait for child process | Parent waits for child to finish compiling |
+| exit() | Terminate current process | Ending a program after completion |
+| getpid() | Know current process ID | Logging process ID for debugging |
+| getppid() | Know parent process ID | Child process communicating with parent |
+| getuid() / geteuid() | Check user privileges | Program checking if user is root |
+| setuid() / seteuid() | Change process privileges | Service dropping root privileges temporarily |
+| kill() | Send a signal | Stopping a process (`kill -9 PID`) |
+| sleep() | Pause execution | Waiting between network retries |
+| alarm() | Set timer | Timing out long-running operations |
 
-## 3. Directory & File System System Calls
+## 3. Directory & File System Calls
 
-| Return Code | System Call | 
-|-------------|------------|
-| s = opendir(dirname) | Open a directory stream |
-| entry = readdir(dir) | Read an entry from directory stream |
-| s = closedir(dir) | Close directory stream |
-| s = mount(source, target, fstype, flags, data) | Mount a filesystem |
-| s = umount(target) | Unmount a filesystem |
-| s = mknod(filename, mode, dev) | Create a special file (device) |
+| System Call | Condition / When Used | Real-World Example |
+|-------------|----------------------|------------------|
+| opendir() / readdir() / closedir() | Reading directory contents | Listing all files in `/var/log/` for cleanup |
+| mount() / umount() | Mount/unmount a filesystem | Mounting an external USB drive |
+| mknod() | Create device or special files | Creating `/dev/ttyS1` for serial communication |
 
 ## 4. Device & File Descriptor Control
 
-| Return Code | System Call |
-|-------------|------------|
-| fd2 = dup(fd) | Duplicate a file descriptor |
-| fd2 = dup2(fd, fd2) | Duplicate a file descriptor to a specific number |
-| s = fcntl(fd, command, arg) | Perform file descriptor operations (locking, flags) |
-| s = ioctl(fd, request, arg) | Device-specific I/O control operations |
-| s = pipe(fds) | Create a pipe for inter-process communication |
+| System Call | Condition / When Used | Real-World Example |
+|-------------|----------------------|------------------|
+| dup() / dup2() | Redirect file descriptors | Redirect stdout to a log file |
+| fcntl() | Locking or changing fd flags | Locking a file to prevent concurrent writes |
+| ioctl() | Device-specific operations | Configuring network card parameters |
+| pipe() | Inter-process communication | Parent process sending data to a child process |
 
-## 5. Memory & System Information
+## 5. Memory & System Info
 
-| Return Code | System Call |
-|-------------|------------|
-| s = brk(addr) / sbrk(nbytes) | Adjust process data segment size |
-| addr = mmap(addr, length, prot, flags, fd, offset) | Map file or device into memory |
-| s = munmap(addr, length) | Unmap memory region |
-| time = gettimeofday(&tv, NULL) | Get current system time |
-| s = uname(&buf) | Get system information (OS name, version, architecture) |
+| System Call | Condition / When Used | Real-World Example |
+|-------------|----------------------|------------------|
+| brk() / sbrk() | Adjust heap size manually | Rarely used; dynamic memory allocation internally uses this |
+| mmap() / munmap() | Map files to memory | Loading large databases or shared memory between processes |
+| gettimeofday() | Get precise system time | Logging timestamps for transactions |
+| uname() | Get system info | Checking OS type/version in system monitoring tools |
 
 ---
 
-**Notes:**
-- Most system calls return **-1** on error.
-- Include headers: `<unistd.h>`, `<fcntl.h>`, `<sys/stat.h>`, `<sys/types.h>`, `<sys/mount.h>`
-- These are **POSIX-compliant system calls**, used in **C on UNIX/Linux**.
+**Summary:**
+- File system calls: managing files, logs, configuration, directories
+- Process control calls: multitasking, daemons, servers
+- Device & FD control: I/O redirection, device communication, IPC
+- Memory & info calls: shared memory, timing, system monitoring
 
